@@ -1,0 +1,229 @@
+{
+    "model_type": "LightGBM Global Demand Forecasting Model",
+    "target": "Demand",
+    "feature_columns": [
+        "Store ID",
+        "Product ID",
+        "Category",
+        "Region",
+        "year",
+        "month",
+        "day",
+        "day_of_week",
+        "day_of_year",
+        "week_of_year",
+        "is_weekend",
+        "month_sin",
+        "month_cos",
+        "day_of_week_sin",
+        "day_of_week_cos",
+        "demand_lag_1",
+        "demand_lag_2",
+        "demand_lag_3",
+        "demand_lag_7",
+        "demand_lag_14",
+        "demand_lag_28",
+        "demand_rolling_mean_7",
+        "demand_rolling_std_7",
+        "demand_rolling_mean_14",
+        "demand_rolling_std_14",
+        "demand_rolling_mean_30",
+        "demand_rolling_std_30",
+        "Inventory Level",
+        "Units Ordered",
+        "Units Sold",
+        "Price",
+        "Discount",
+        "Promotion",
+        "Weather Condition",
+        "Seasonality",
+        "Epidemic",
+        "Competitor Pricing",
+        "inventory_to_demand_ratio",
+        "order_to_demand_ratio"
+    ],
+    "categorical_columns": [
+        "Store ID",
+        "Product ID",
+        "Category",
+        "Region",
+        "Weather Condition",
+        "Promotion",
+        "Seasonality",
+        "Epidemic"
+    ],
+    "validation_days": 30,
+    "training_start": "2022-01-31",
+    "training_end": "2023-12-31",
+    "validation_start": "2024-01-01",
+    "validation_end": "2024-01-30",
+    "best_iteration": 1500,
+    "model_metrics": {
+        "MAE": 7.844841058390441,
+        "RMSE": 10.556741826888146,
+        "MAPE": 9.848452428535138
+    },
+    "baseline_metrics": {
+        "MAE": 39.425666666666665,
+        "RMSE": 51.28266438736063,
+        "MAPE": 54.37798036267084
+    },
+    "feature_importance": [
+        {
+            "feature": "Price",
+            "importance": 15953
+        },
+        {
+            "feature": "Product ID",
+            "importance": 10415
+        },
+        {
+            "feature": "Units Sold",
+            "importance": 9371
+        },
+        {
+            "feature": "Competitor Pricing",
+            "importance": 6448
+        },
+        {
+            "feature": "Units Ordered",
+            "importance": 4693
+        },
+        {
+            "feature": "Store ID",
+            "importance": 4118
+        },
+        {
+            "feature": "inventory_to_demand_ratio",
+            "importance": 3397
+        },
+        {
+            "feature": "Discount",
+            "importance": 3329
+        },
+        {
+            "feature": "Inventory Level",
+            "importance": 3305
+        },
+        {
+            "feature": "Category",
+            "importance": 2897
+        },
+        {
+            "feature": "order_to_demand_ratio",
+            "importance": 2434
+        },
+        {
+            "feature": "demand_rolling_mean_7",
+            "importance": 2431
+        },
+        {
+            "feature": "demand_lag_1",
+            "importance": 2357
+        },
+        {
+            "feature": "demand_lag_2",
+            "importance": 2067
+        },
+        {
+            "feature": "demand_rolling_mean_30",
+            "importance": 1696
+        },
+        {
+            "feature": "demand_rolling_mean_14",
+            "importance": 1682
+        },
+        {
+            "feature": "demand_lag_3",
+            "importance": 1625
+        },
+        {
+            "feature": "demand_lag_28",
+            "importance": 1478
+        },
+        {
+            "feature": "demand_lag_7",
+            "importance": 1467
+        },
+        {
+            "feature": "demand_rolling_std_7",
+            "importance": 1466
+        },
+        {
+            "feature": "demand_rolling_std_30",
+            "importance": 1399
+        },
+        {
+            "feature": "demand_lag_14",
+            "importance": 1383
+        },
+        {
+            "feature": "demand_rolling_std_14",
+            "importance": 1235
+        },
+        {
+            "feature": "day_of_year",
+            "importance": 1001
+        },
+        {
+            "feature": "day",
+            "importance": 853
+        },
+        {
+            "feature": "Promotion",
+            "importance": 697
+        },
+        {
+            "feature": "Region",
+            "importance": 603
+        },
+        {
+            "feature": "Epidemic",
+            "importance": 545
+        },
+        {
+            "feature": "Weather Condition",
+            "importance": 540
+        },
+        {
+            "feature": "month_cos",
+            "importance": 417
+        },
+        {
+            "feature": "day_of_week",
+            "importance": 388
+        },
+        {
+            "feature": "week_of_year",
+            "importance": 264
+        },
+        {
+            "feature": "day_of_week_sin",
+            "importance": 248
+        },
+        {
+            "feature": "day_of_week_cos",
+            "importance": 233
+        },
+        {
+            "feature": "month_sin",
+            "importance": 207
+        },
+        {
+            "feature": "Seasonality",
+            "importance": 136
+        },
+        {
+            "feature": "month",
+            "importance": 118
+        },
+        {
+            "feature": "year",
+            "importance": 95
+        },
+        {
+            "feature": "is_weekend",
+            "importance": 9
+        }
+    ]
+}

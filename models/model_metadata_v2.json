@@ -1,0 +1,434 @@
+{
+  "model_version": "V2",
+  "model_type": "LightGBM Global Demand Forecasting Model",
+  "target": "Demand",
+  "feature_count": 77,
+  "feature_columns": [
+    "Store ID",
+    "Product ID",
+    "Category",
+    "Region",
+    "year",
+    "month",
+    "quarter",
+    "day",
+    "day_of_week",
+    "day_of_year",
+    "week_of_year",
+    "is_weekend",
+    "is_month_start",
+    "is_month_end",
+    "is_quarter_start",
+    "is_quarter_end",
+    "month_sin",
+    "month_cos",
+    "day_of_week_sin",
+    "day_of_week_cos",
+    "week_of_year_sin",
+    "week_of_year_cos",
+    "day_of_year_sin",
+    "day_of_year_cos",
+    "demand_lag_1",
+    "demand_lag_2",
+    "demand_lag_3",
+    "demand_lag_7",
+    "demand_lag_14",
+    "demand_lag_21",
+    "demand_lag_28",
+    "demand_lag_35",
+    "demand_lag_56",
+    "demand_lag_90",
+    "demand_rolling_mean_7",
+    "demand_rolling_mean_14",
+    "demand_rolling_mean_28",
+    "demand_rolling_mean_56",
+    "demand_rolling_mean_90",
+    "demand_rolling_std_7",
+    "demand_rolling_std_14",
+    "demand_rolling_std_28",
+    "demand_rolling_std_56",
+    "demand_rolling_std_90",
+    "demand_rolling_min_7",
+    "demand_rolling_min_14",
+    "demand_rolling_min_28",
+    "demand_rolling_min_56",
+    "demand_rolling_min_90",
+    "demand_rolling_max_7",
+    "demand_rolling_max_14",
+    "demand_rolling_max_28",
+    "demand_rolling_max_56",
+    "demand_rolling_max_90",
+    "demand_momentum_7_28",
+    "demand_momentum_7_56",
+    "demand_momentum_7_90",
+    "demand_momentum_14_28",
+    "demand_momentum_28_90",
+    "demand_trend_7_28",
+    "demand_trend_7_56",
+    "demand_trend_7_90",
+    "demand_volatility_7_28",
+    "demand_volatility_14_56",
+    "store_historical_avg_demand",
+    "store_historical_std_demand",
+    "product_historical_avg_demand",
+    "product_historical_std_demand",
+    "series_historical_avg_demand",
+    "series_historical_std_demand",
+    "recent_vs_store_avg",
+    "recent_vs_product_avg",
+    "recent_vs_series_avg",
+    "Price",
+    "Discount",
+    "Promotion",
+    "Seasonality"
+  ],
+  "categorical_columns": [
+    "Store ID",
+    "Product ID",
+    "Category",
+    "Region",
+    "Promotion",
+    "Seasonality"
+  ],
+  "excluded_future_unknown_features": [
+    "Competitor Pricing",
+    "Epidemic",
+    "Inventory Level",
+    "Units Ordered",
+    "Units Sold",
+    "Weather Condition"
+  ],
+  "validation_method": "4-fold chronological rolling validation",
+  "validation_days": 30,
+  "forecast_horizon": 7,
+  "final_holdout": {
+    "validation_start": "2024-01-01",
+    "validation_end": "2024-01-30",
+    "MAE": 9.47863602596515,
+    "RMSE": 12.418936058538801,
+    "MAPE": 14.999395600921092,
+    "baseline_MAE": 39.425666666666665,
+    "baseline_RMSE": 51.28266438736063,
+    "baseline_MAPE": 54.37798036267084,
+    "best_iteration": 1799
+  },
+  "feature_importance": [
+    {
+      "Feature": "Price",
+      "Importance": 21469
+    },
+    {
+      "Feature": "Product ID",
+      "Importance": 10847
+    },
+    {
+      "Feature": "store_historical_avg_demand",
+      "Importance": 4558
+    },
+    {
+      "Feature": "store_historical_std_demand",
+      "Importance": 4337
+    },
+    {
+      "Feature": "Discount",
+      "Importance": 3645
+    },
+    {
+      "Feature": "product_historical_avg_demand",
+      "Importance": 3522
+    },
+    {
+      "Feature": "Store ID",
+      "Importance": 3329
+    },
+    {
+      "Feature": "product_historical_std_demand",
+      "Importance": 2817
+    },
+    {
+      "Feature": "series_historical_avg_demand",
+      "Importance": 2611
+    },
+    {
+      "Feature": "Category",
+      "Importance": 2225
+    },
+    {
+      "Feature": "series_historical_std_demand",
+      "Importance": 2020
+    },
+    {
+      "Feature": "demand_lag_1",
+      "Importance": 1992
+    },
+    {
+      "Feature": "demand_lag_2",
+      "Importance": 1689
+    },
+    {
+      "Feature": "recent_vs_series_avg",
+      "Importance": 1668
+    },
+    {
+      "Feature": "demand_lag_56",
+      "Importance": 1427
+    },
+    {
+      "Feature": "demand_rolling_mean_7",
+      "Importance": 1419
+    },
+    {
+      "Feature": "demand_lag_3",
+      "Importance": 1348
+    },
+    {
+      "Feature": "demand_lag_14",
+      "Importance": 1322
+    },
+    {
+      "Feature": "demand_lag_90",
+      "Importance": 1307
+    },
+    {
+      "Feature": "demand_lag_28",
+      "Importance": 1275
+    },
+    {
+      "Feature": "demand_lag_7",
+      "Importance": 1271
+    },
+    {
+      "Feature": "demand_lag_35",
+      "Importance": 1224
+    },
+    {
+      "Feature": "demand_lag_21",
+      "Importance": 1169
+    },
+    {
+      "Feature": "recent_vs_product_avg",
+      "Importance": 1143
+    },
+    {
+      "Feature": "recent_vs_store_avg",
+      "Importance": 1134
+    },
+    {
+      "Feature": "demand_rolling_mean_14",
+      "Importance": 1117
+    },
+    {
+      "Feature": "demand_volatility_7_28",
+      "Importance": 1073
+    },
+    {
+      "Feature": "demand_rolling_mean_90",
+      "Importance": 1047
+    },
+    {
+      "Feature": "demand_momentum_14_28",
+      "Importance": 1025
+    },
+    {
+      "Feature": "day_of_year_cos",
+      "Importance": 997
+    },
+    {
+      "Feature": "demand_momentum_28_90",
+      "Importance": 975
+    },
+    {
+      "Feature": "demand_volatility_14_56",
+      "Importance": 973
+    },
+    {
+      "Feature": "day_of_year",
+      "Importance": 944
+    },
+    {
+      "Feature": "demand_rolling_std_90",
+      "Importance": 920
+    },
+    {
+      "Feature": "day",
+      "Importance": 900
+    },
+    {
+      "Feature": "demand_rolling_mean_56",
+      "Importance": 879
+    },
+    {
+      "Feature": "demand_rolling_std_56",
+      "Importance": 872
+    },
+    {
+      "Feature": "day_of_year_sin",
+      "Importance": 831
+    },
+    {
+      "Feature": "demand_rolling_std_7",
+      "Importance": 824
+    },
+    {
+      "Feature": "demand_rolling_mean_28",
+      "Importance": 819
+    },
+    {
+      "Feature": "demand_trend_7_56",
+      "Importance": 810
+    },
+    {
+      "Feature": "demand_rolling_min_7",
+      "Importance": 803
+    },
+    {
+      "Feature": "demand_rolling_max_7",
+      "Importance": 789
+    },
+    {
+      "Feature": "Promotion",
+      "Importance": 789
+    },
+    {
+      "Feature": "demand_momentum_7_28",
+      "Importance": 783
+    },
+    {
+      "Feature": "demand_rolling_std_14",
+      "Importance": 769
+    },
+    {
+      "Feature": "demand_trend_7_90",
+      "Importance": 768
+    },
+    {
+      "Feature": "demand_momentum_7_56",
+      "Importance": 766
+    },
+    {
+      "Feature": "demand_rolling_std_28",
+      "Importance": 758
+    },
+    {
+      "Feature": "demand_momentum_7_90",
+      "Importance": 722
+    },
+    {
+      "Feature": "demand_rolling_min_56",
+      "Importance": 711
+    },
+    {
+      "Feature": "demand_rolling_min_28",
+      "Importance": 710
+    },
+    {
+      "Feature": "demand_rolling_min_14",
+      "Importance": 708
+    },
+    {
+      "Feature": "demand_rolling_max_90",
+      "Importance": 708
+    },
+    {
+      "Feature": "demand_rolling_max_56",
+      "Importance": 706
+    },
+    {
+      "Feature": "demand_rolling_min_90",
+      "Importance": 688
+    },
+    {
+      "Feature": "demand_trend_7_28",
+      "Importance": 676
+    },
+    {
+      "Feature": "demand_rolling_max_28",
+      "Importance": 615
+    },
+    {
+      "Feature": "demand_rolling_max_14",
+      "Importance": 586
+    },
+    {
+      "Feature": "day_of_week",
+      "Importance": 367
+    },
+    {
+      "Feature": "Region",
+      "Importance": 364
+    },
+    {
+      "Feature": "week_of_year_cos",
+      "Importance": 271
+    },
+    {
+      "Feature": "month_sin",
+      "Importance": 256
+    },
+    {
+      "Feature": "day_of_week_sin",
+      "Importance": 252
+    },
+    {
+      "Feature": "Seasonality",
+      "Importance": 241
+    },
+    {
+      "Feature": "day_of_week_cos",
+      "Importance": 236
+    },
+    {
+      "Feature": "week_of_year_sin",
+      "Importance": 218
+    },
+    {
+      "Feature": "year",
+      "Importance": 189
+    },
+    {
+      "Feature": "week_of_year",
+      "Importance": 153
+    },
+    {
+      "Feature": "month_cos",
+      "Importance": 138
+    },
+    {
+      "Feature": "month",
+      "Importance": 55
+    },
+    {
+      "Feature": "is_month_end",
+      "Importance": 15
+    },
+    {
+      "Feature": "is_weekend",
+      "Importance": 6
+    },
+    {
+      "Feature": "is_quarter_start",
+      "Importance": 5
+    },
+    {
+      "Feature": "quarter",
+      "Importance": 2
+    },
+    {
+      "Feature": "is_month_start",
+      "Importance": 2
+    },
+    {
+      "Feature": "is_quarter_end",
+      "Importance": 1
+    }
+  ],
+  "quantile_forecasts": true,
+  "artifacts": {
+    "point_model": "C:\\Users\\shaik\\PycharmProjects\\AI_Demand_Inventory_Optimizer\\models\\demand_model_v2.pkl",
+    "p10_model": "C:\\Users\\shaik\\PycharmProjects\\AI_Demand_Inventory_Optimizer\\models\\demand_model_p10.pkl",
+    "p90_model": "C:\\Users\\shaik\\PycharmProjects\\AI_Demand_Inventory_Optimizer\\models\\demand_model_p90.pkl",
+    "forecast_output": "C:\\Users\\shaik\\PycharmProjects\\AI_Demand_Inventory_Optimizer\\outputs\\forecasts_v2.csv",
+    "validation_output": "C:\\Users\\shaik\\PycharmProjects\\AI_Demand_Inventory_Optimizer\\outputs\\validation_predictions_v2.csv",
+    "rolling_cv_output": "C:\\Users\\shaik\\PycharmProjects\\AI_Demand_Inventory_Optimizer\\outputs\\rolling_validation_v2.csv"
+  }
+}
