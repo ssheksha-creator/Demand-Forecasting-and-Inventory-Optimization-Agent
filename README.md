@@ -534,11 +534,9 @@ Interactive Dashboard
 | Team Member | Contribution |
 |---|---|
 | **Shaik Shekshavali – Team Leader** | **Developed the complete source code and integrated the entire solution end-to-end**, including data preprocessing, feature engineering, demand forecasting, model validation, inventory optimization, stockout-risk analysis, replenishment recommendations, What-If simulation, AI Agent, analytics modules, Streamlit dashboard, visualizations, model integration, testing, debugging and overall system integration. Also coordinated the team and contributed to the final presentation. |
-| **Guturi Venkata Ranga Shanmukha Sai** | Dataset understanding, data analysis and contribution to solution discussions and validation. |
-| **Kesanapalli Lakshmi Sree** | Supported inventory-risk analysis, replenishment concepts and interpretation of inventory optimization results. |
-| **Yalama Reddy Mahesh Kumar Reddy** | Supported What-If scenario analysis and business interpretation of demand and inventory decisions. |
-| **Madineni Hima Priya** | Supported dashboard review, visualization design and UI/UX feedback. |
-| **Kosuru Nikhitha** | Supported AI Agent workflow review, documentation and presentation preparation. |
+| **Kesanapalli Lakshmi Sree** | Supported **inventory intelligence and optimization**, including inventory-risk analysis, safety-stock concepts, replenishment logic and interpretation of inventory optimization results. |
+| **Yalama Reddy Mahesh Kumar Reddy** | Supported **What-If scenario analysis and business decision interpretation**, including analysis of demand changes and their impact on inventory and replenishment decisions. |
+| **Madineni Hima Priya** | Supported **dashboard visualization and UI/UX review**, including feedback on charts, tables, dashboard layout and presentation of business insights. |
 
 ### Core Technical Contribution
 

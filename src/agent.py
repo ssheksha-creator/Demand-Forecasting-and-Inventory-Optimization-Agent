@@ -1,11 +1,33 @@
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
+
+# Optional OpenAI integration. Core analytics remain deterministic Python logic.
+try:
+    from dotenv import load_dotenv
+    from openai import OpenAI
+except ImportError:
+    load_dotenv = None
+    OpenAI = None
+
+if load_dotenv is not None:
+    load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
+
+_openai_client = None
+if OpenAI is not None and OPENAI_API_KEY:
+    try:
+        _openai_client = OpenAI(api_key=OPENAI_API_KEY)
+    except Exception:
+        _openai_client = None
 
 # In the real project this file lives in src/, so parent.parent is the project root.
 # The fallback also makes the file testable when temporarily placed beside the CSV.
@@ -671,9 +693,116 @@ def choose_analysis(question: str) -> str:
 
 
 # ---------------------------------------------------------------------
+# Optional OpenAI explanation layer
+# ---------------------------------------------------------------------
+def _serialize_for_llm(result: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep the API prompt compact; chart data is not sent to OpenAI."""
+    evidence = result.get("evidence", {}) or {}
+
+    def clean_value(value):
+        if isinstance(value, np.integer):
+            return int(value)
+        if isinstance(value, np.floating):
+            return float(value)
+        if isinstance(value, np.bool_):
+            return bool(value)
+        return value
+
+    compact = {}
+    for key, value in evidence.items():
+        if key == "charts":
+            continue
+
+        if isinstance(value, list):
+            compact[key] = [
+                {str(k): clean_value(v) for k, v in row.items()}
+                if isinstance(row, dict)
+                else clean_value(row)
+                for row in value[:15]
+            ]
+        elif isinstance(value, dict):
+            compact[key] = {
+                str(k): clean_value(v)
+                for k, v in list(value.items())[:30]
+            }
+        else:
+            compact[key] = clean_value(value)
+
+    return {
+        "answer_fallback": result.get("answer", ""),
+        "tools_used": result.get("tools_used", []),
+        "evidence": compact,
+    }
+
+
+def _generate_ai_explanation(question: str, result: Dict[str, Any]) -> str:
+    """
+    OpenAI explains already-calculated project results.
+
+    Forecasts, risk scores, inventory quantities, tables and charts are
+    produced by the project's Python code, not invented by the LLM.
+    """
+    fallback = result.get("answer", "")
+
+    if _openai_client is None:
+        return fallback
+
+    payload = _serialize_for_llm(result)
+
+    prompt = f"""
+You are the AI decision-support assistant inside a retail demand forecasting
+and inventory optimization dashboard.
+
+User question:
+{question}
+
+The project's Python analytics tools already calculated this evidence:
+{payload}
+
+Write the final answer for the business user.
+
+Rules:
+- Use ONLY the supplied evidence.
+- Do not invent, estimate, or change numerical values.
+- Do not perform a new forecast or inventory optimization.
+- Do not claim causation from descriptive associations.
+- Explain the most important finding first.
+- Explain the evidence behind the finding.
+- Give a practical recommendation when supported.
+- Do not tell the user to refer to a table/chart elsewhere.
+- Do not mention Python functions, APIs, prompts, tools, or implementation.
+- Keep the answer concise and professional.
+- Preserve project terminology such as P50, P90, stockout risk,
+  recommended order, forecast coverage, and safety stock when present.
+"""
+
+    try:
+        response = _openai_client.responses.create(
+            model=OPENAI_MODEL,
+            input=prompt,
+        )
+        output_text = getattr(response, "output_text", None)
+        if output_text:
+            return output_text.strip()
+    except Exception as exc:
+        print(f"OpenAI explanation unavailable; using deterministic answer: {exc}")
+
+    return fallback
+
+
+# ---------------------------------------------------------------------
 # Main agent
 # ---------------------------------------------------------------------
 def ask_agent(question: str) -> Dict[str, Any]:
+    """
+    Main agent entry point.
+
+    User query -> deterministic routing -> Python analytics/optimization
+    -> evidence/charts -> optional OpenAI explanation -> final result.
+
+    If the API key is missing or the API call fails, the original
+    deterministic answer is returned so the dashboard keeps working.
+    """
     question = question.strip()
     if not question:
         return {
@@ -690,33 +819,50 @@ def ask_agent(question: str) -> Dict[str, Any]:
     if kind == "compare_products":
         e = compare_products(question, stores[0], products)
         if "error" in e:
-            return {"answer": e["error"], "tools_used": ["compare_products"], "evidence": e, "visuals": []}
+            return {
+                "answer": e["error"],
+                "tools_used": ["compare_products"],
+                "evidence": e,
+                "visuals": [],
+            }
 
-        p1, p2 = e["headline"].split(" vs ", 1)[0], e["headline"].split(" vs ", 1)[1].split(" in ")[0]
         reasons = " ".join(e.get("reasons", []))
-        answer = (
-            f"**{e['headline']}**\n\n"
-            f"**Conclusion:** {reasons}\n\n"
-            f"**Recommended action:** {e['recommendation']}"
-        )
-        return {
-            "answer": answer,
+        result = {
+            "answer": (
+                f"**{e['headline']}**\n\n"
+                f"**Conclusion:** {reasons}\n\n"
+                f"**Recommended action:** {e['recommendation']}"
+            ),
             "tools_used": ["compare_products"],
             "evidence": e,
             "visuals": e["charts"],
         }
+        result["answer"] = _generate_ai_explanation(question, result)
+        return result
 
     if kind == "risk":
         e = get_top_risk_products(question)
         if "error" in e:
-            return {"answer": e["error"], "tools_used": ["get_top_risk_products"], "evidence": e, "visuals": []}
-        answer = (
-            "**Stockout risk analysis**\n\n"
-            + " ".join(e.get("reasons", []))
-            + "\n\n**Recommended action:** "
-            + e.get("recommendation", "")
-        )
-        return {"answer": answer, "tools_used": ["get_top_risk_products"], "evidence": e, "visuals": e["charts"]}
+            return {
+                "answer": e["error"],
+                "tools_used": ["get_top_risk_products"],
+                "evidence": e,
+                "visuals": [],
+            }
+
+        result = {
+            "answer": (
+                "**Stockout risk analysis**\n\n"
+                + " ".join(e.get("reasons", []))
+                + "\n\n**Recommended action:** "
+                + e.get("recommendation", "")
+            ),
+            "tools_used": ["get_top_risk_products"],
+            "evidence": e,
+            "visuals": e["charts"],
+        }
+        result["answer"] = _generate_ai_explanation(question, result)
+        return result
 
     if kind == "scenario":
         e = run_what_if_scenario(
@@ -726,40 +872,73 @@ def ask_agent(question: str) -> Dict[str, Any]:
             products[0] if products else None,
         )
         if "error" in e:
-            return {"answer": e["error"], "tools_used": ["run_what_if_scenario"], "evidence": e, "visuals": []}
-        answer = (
-            f"**Scenario analysis:** demand changes by {e['demand_change_pct']:+.0f}%.\n\n"
-            f"P50 demand changes from **{_fmt(e['baseline_p50'], 0)}** to "
-            f"**{_fmt(e['scenario_p50'], 0)}** units, while projected shortage changes from "
-            f"**{_fmt(e['baseline_shortage'], 0)}** to **{_fmt(e['scenario_shortage'], 0)}** units.\n\n"
-            f"**Recommended action:** {e['recommendation']}"
-        )
-        return {"answer": answer, "tools_used": ["run_what_if_scenario"], "evidence": e, "visuals": e["charts"]}
+            return {
+                "answer": e["error"],
+                "tools_used": ["run_what_if_scenario"],
+                "evidence": e,
+                "visuals": [],
+            }
+
+        result = {
+            "answer": (
+                f"**Scenario analysis:** demand changes by "
+                f"{e['demand_change_pct']:+.0f}%.\n\n"
+                f"P50 demand changes from **{_fmt(e['baseline_p50'], 0)}** to "
+                f"**{_fmt(e['scenario_p50'], 0)}** units, while projected shortage "
+                f"changes from **{_fmt(e['baseline_shortage'], 0)}** to "
+                f"**{_fmt(e['scenario_shortage'], 0)}** units.\n\n"
+                f"**Recommended action:** {e['recommendation']}"
+            ),
+            "tools_used": ["run_what_if_scenario"],
+            "evidence": e,
+            "visuals": e["charts"],
+        }
+        result["answer"] = _generate_ai_explanation(question, result)
+        return result
 
     if kind == "store":
         e = get_store_analytics(question)
-        answer = (
-            "**Store analysis**\n\n"
-            + " ".join(e.get("reasons", []))
-            + "\n\n**Recommended action:** "
-            + e.get("recommendation", "")
-        )
-        return {"answer": answer, "tools_used": ["get_store_analytics"], "evidence": e, "visuals": e["charts"]}
+        result = {
+            "answer": (
+                "**Store analysis**\n\n"
+                + " ".join(e.get("reasons", []))
+                + "\n\n**Recommended action:** "
+                + e.get("recommendation", "")
+            ),
+            "tools_used": ["get_store_analytics"],
+            "evidence": e,
+            "visuals": e["charts"],
+        }
+        result["answer"] = _generate_ai_explanation(question, result)
+        return result
 
     if kind == "product":
         e = get_product_analytics(question)
-        answer = (
-            "**Product analysis**\n\n"
-            + " ".join(e.get("reasons", []))
-            + "\n\n**Recommended action:** "
-            + e.get("recommendation", "")
-        )
-        return {"answer": answer, "tools_used": ["get_product_analytics"], "evidence": e, "visuals": e["charts"]}
+        result = {
+            "answer": (
+                "**Product analysis**\n\n"
+                + " ".join(e.get("reasons", []))
+                + "\n\n**Recommended action:** "
+                + e.get("recommendation", "")
+            ),
+            "tools_used": ["get_product_analytics"],
+            "evidence": e,
+            "visuals": e["charts"],
+        }
+        result["answer"] = _generate_ai_explanation(question, result)
+        return result
 
     e = analyze_dataset(question)
-    answer = (
-        "**Dataset analysis**\n\n"
-        + " ".join(e.get("reasons", []))
-        + "\n\nThe charts and validation evidence below are generated directly from the project CSV."
-    )
-    return {"answer": answer, "tools_used": ["analyze_dataset"], "evidence": e, "visuals": e["charts"]}
+    result = {
+        "answer": (
+            "**Dataset analysis**\n\n"
+            + " ".join(e.get("reasons", []))
+            + "\n\nThe charts and validation evidence below are generated directly from the project CSV."
+        ),
+        "tools_used": ["analyze_dataset"],
+        "evidence": e,
+        "visuals": e["charts"],
+    }
+    result["answer"] = _generate_ai_explanation(question, result)
+    return result
+
