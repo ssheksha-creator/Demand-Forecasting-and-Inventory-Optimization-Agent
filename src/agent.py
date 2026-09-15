@@ -19,15 +19,18 @@ except ImportError:
 if load_dotenv is not None:
     load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openrouter/free")
 
-_openai_client = None
-if OpenAI is not None and OPENAI_API_KEY:
+_openrouter_client = None
+if OpenAI is not None and OPENROUTER_API_KEY:
     try:
-        _openai_client = OpenAI(api_key=OPENAI_API_KEY)
+        _openrouter_client = OpenAI(
+            api_key=OPENROUTER_API_KEY,
+            base_url="https://openrouter.ai/api/v1",
+        )
     except Exception:
-        _openai_client = None
+        _openrouter_client = None
 
 # In the real project this file lives in src/, so parent.parent is the project root.
 # The fallback also makes the file testable when temporarily placed beside the CSV.
@@ -693,7 +696,7 @@ def choose_analysis(question: str) -> str:
 
 
 # ---------------------------------------------------------------------
-# Optional OpenAI explanation layer
+# Optional OpenRouter explanation layer
 # ---------------------------------------------------------------------
 def _serialize_for_llm(result: Dict[str, Any]) -> Dict[str, Any]:
     """Keep the API prompt compact; chart data is not sent to OpenAI."""
@@ -737,14 +740,14 @@ def _serialize_for_llm(result: Dict[str, Any]) -> Dict[str, Any]:
 
 def _generate_ai_explanation(question: str, result: Dict[str, Any]) -> str:
     """
-    OpenAI explains already-calculated project results.
+    OpenRouter explains already-calculated project results.
 
     Forecasts, risk scores, inventory quantities, tables and charts are
     produced by the project's Python code, not invented by the LLM.
     """
     fallback = result.get("answer", "")
 
-    if _openai_client is None:
+    if _openrouter_client is None:
         return fallback
 
     payload = _serialize_for_llm(result)
@@ -777,15 +780,15 @@ Rules:
 """
 
     try:
-        response = _openai_client.responses.create(
-            model=OPENAI_MODEL,
+        response = _openrouter_client.responses.create(
+            model=OPENROUTER_MODEL,
             input=prompt,
         )
         output_text = getattr(response, "output_text", None)
         if output_text:
             return output_text.strip()
     except Exception as exc:
-        print(f"OpenAI explanation unavailable; using deterministic answer: {exc}")
+        print(f"OpenRouter explanation unavailable; using deterministic answer: {exc}")
 
     return fallback
 
@@ -798,7 +801,7 @@ def ask_agent(question: str) -> Dict[str, Any]:
     Main agent entry point.
 
     User query -> deterministic routing -> Python analytics/optimization
-    -> evidence/charts -> optional OpenAI explanation -> final result.
+    -> evidence/charts -> optional OpenRouter explanation -> final result.
 
     If the API key is missing or the API call fails, the original
     deterministic answer is returned so the dashboard keeps working.
