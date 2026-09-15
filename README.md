@@ -1,4 +1,4 @@
-# Demand Forecasting & Inventory Optimization Agent
+#  Demand Forecasting & Inventory Optimization Agent
 
 **Cognizant Hackathon 2026 – Use Case 4**  
 **Team 38 | GITAM University**
@@ -310,6 +310,14 @@ The simulator provides scenario-level demand, shortage and replenishment impacts
 
 The AI Agent provides natural-language access to analytical capabilities.
 
+### LLM Integration
+
+The project uses **OpenRouter** as the optional LLM layer. OpenRouter provides an OpenAI-compatible API, allowing the existing Python agent architecture to connect to available free LLM models without changing the forecasting or inventory-optimization pipeline.
+
+The LLM is used for **natural-language explanation and decision support only**. Numerical forecasts, risk scores, inventory quantities, charts and evidence tables are calculated by the project's deterministic Python components.
+
+If the LLM API is unavailable, the Agent falls back to deterministic responses so the dashboard remains functional.
+
 ### Agent Workflow
 
 **User Query → Intent Detection → Data Analysis → Relevant Charts → Evidence Tables → Explanation → Recommendation**
@@ -375,7 +383,10 @@ Numerical forecasts and inventory recommendations come from the underlying data,
 - Streamlit
 
 ### AI
-- OpenAI / LLM-based AI Agent integration
+- OpenRouter
+- OpenAI-compatible LLM API
+- LLM-based AI Agent integration
+- Free LLM routing through OpenRouter
 
 ### Development
 - PyCharm
@@ -460,7 +471,14 @@ pip install -r requirements.txt
 
 ### 4. Configure environment variables
 
-Create `.env` with the required AI API configuration used by the project.
+Create `.env` with the OpenRouter API configuration used by the AI Agent.
+
+```env
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_MODEL=openrouter/free
+```
+
+The AI Agent uses OpenRouter's OpenAI-compatible API. The `openrouter/free` model route allows the project to use an available free LLM for natural-language explanations.
 
 **Do not commit API keys or other secrets to GitHub.**
 
@@ -514,6 +532,8 @@ Risk Detection
 Inventory Optimization
       ↓
 AI Agent
+      ↓
+OpenRouter Free LLM
       ↓
 Interactive Dashboard
 ```
